@@ -91,10 +91,12 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 
 type Handler interface {
 	HMSet(key string, values ...interface{}) *redis.BoolCmd
+	HDel(key string, fields ...string) *redis.IntCmd
 	Del(keys ...string) *redis.IntCmd
 	HGetAll(key string) *redis.StringStringMapCmd
 	Expire(key string, expiration time.Duration) *redis.BoolCmd
 	HIncrByFloat(key, field string, incr float64) *redis.FloatCmd
+	HIncrBy(key, field string, incr int64) *redis.IntCmd
 	Exists(keys ...string) *redis.IntCmd
 	FlushAll() *redis.StatusCmd
 	LPush(key string, values ...interface{}) *redis.IntCmd
