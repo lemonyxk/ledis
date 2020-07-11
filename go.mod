@@ -1,4 +1,4 @@
-module github.com/Lemo-yxk/ledis
+module github.com/lemoyxk/ledis
 
 go 1.14
 
