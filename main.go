@@ -11,9 +11,10 @@
 package ledis
 
 import (
+	"context"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 )
 
 /**
@@ -40,7 +41,7 @@ func (client *Client) Transaction(fn func(pipeClient *Client) error) error {
 	if err != nil {
 		return err
 	}
-	_, err = pipe.Exec()
+	_, err = pipe.Exec(context.Background())
 	return err
 }
 
@@ -68,7 +69,7 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 
 			var keys []string
 			var err error
-			keys, cursor, err = client.Handler.Scan(cursor, key, int64(count)).Result()
+			keys, cursor, err = client.Handler.Scan(context.Background(), cursor, key, int64(count)).Result()
 			if err != nil {
 				ch <- &ScanResult{err: err}
 				close(ch)
@@ -90,20 +91,21 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 }
 
 type Handler interface {
-	HMSet(key string, values ...interface{}) *redis.BoolCmd
-	HDel(key string, fields ...string) *redis.IntCmd
-	Del(keys ...string) *redis.IntCmd
-	HGetAll(key string) *redis.StringStringMapCmd
-	Expire(key string, expiration time.Duration) *redis.BoolCmd
-	HIncrByFloat(key, field string, incr float64) *redis.FloatCmd
-	HIncrBy(key, field string, incr int64) *redis.IntCmd
-	Exists(keys ...string) *redis.IntCmd
-	FlushAll() *redis.StatusCmd
-	LPush(key string, values ...interface{}) *redis.IntCmd
+	HMSet(ctx context.Context, key string, values ...interface{}) *redis.BoolCmd
+	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
+	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+	HGetAll(ctx context.Context, key string) *redis.StringStringMapCmd
+	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
+	HIncrByFloat(ctx context.Context, key, field string, incr float64) *redis.FloatCmd
+	HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd
+	Exists(ctx context.Context, keys ...string) *redis.IntCmd
+	FlushAll(ctx context.Context) *redis.StatusCmd
+	LPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	TxPipeline() redis.Pipeliner
-	SetNX(key string, value interface{}, expiration time.Duration) *redis.BoolCmd
-	Scan(cursor uint64, match string, count int64) *redis.ScanCmd
-	Do(args ...interface{}) *redis.Cmd
+	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
+	Do(ctx context.Context, args ...interface{}) *redis.Cmd
 }
 
 func NewClient(option *redis.Options) *redis.Client {
