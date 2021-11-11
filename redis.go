@@ -97,8 +97,8 @@ type Handler interface {
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
 	HGetAll(ctx context.Context, key string) *redis.StringStringMapCmd
 	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
-	HIncrByFloat(ctx context.Context, key, field string, incr float64) *redis.FloatCmd
-	HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd
+	HIncrByFloat(ctx context.Context, key, field string, inc float64) *redis.FloatCmd
+	HIncrBy(ctx context.Context, key, field string, inc int64) *redis.IntCmd
 	Exists(ctx context.Context, keys ...string) *redis.IntCmd
 	FlushAll(ctx context.Context) *redis.StatusCmd
 	LPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd

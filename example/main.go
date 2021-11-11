@@ -10,6 +10,24 @@
 
 package main
 
+import (
+	"context"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/lemoyxk/ledis"
+)
+
 func main() {
-	// ledis.NewHandler()
+
+	var client = ledis.NewFailover(&redis.FailoverOptions{
+		MasterName:    "master",
+		Password:      "1354243",
+		SentinelAddrs: []string{"192.168.0.100:16379"},
+	})
+
+	err := client.Ping(context.Background()).Err()
+	if err != nil {
+		panic(err)
+	}
+
 }
