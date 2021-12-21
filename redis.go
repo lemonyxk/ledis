@@ -91,6 +91,9 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 }
 
 type Handler interface {
+	LLen(ctx context.Context, key string) *redis.IntCmd
+	BLPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd
+	BRPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd
 	HMSet(ctx context.Context, key string, values ...interface{}) *redis.BoolCmd
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
