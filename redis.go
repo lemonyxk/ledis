@@ -12,7 +12,6 @@ package ledis
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -27,17 +26,17 @@ import (
 * @create: 2019-11-01 14:06
 **/
 
-func NewHandler(client Handler) *Client {
+func NewModel(client redis.Cmdable) *Client {
 	return &Client{Handler: client}
 }
 
 type Client struct {
-	Handler Handler
+	Handler redis.Cmdable
 }
 
-func (client *Client) Transaction(fn func(pipeClient *Client) error) error {
+func (client *Client) Transaction(fn func(pipe redis.Cmdable) error) error {
 	var pipe = client.Handler.TxPipeline()
-	var err = fn(NewHandler(pipe))
+	var err = fn(pipe)
 	if err != nil {
 		return err
 	}
@@ -88,27 +87,6 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 	}()
 
 	return ch
-}
-
-type Handler interface {
-	LLen(ctx context.Context, key string) *redis.IntCmd
-	BLPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd
-	BRPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd
-	HMSet(ctx context.Context, key string, values ...interface{}) *redis.BoolCmd
-	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
-	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
-	Del(ctx context.Context, keys ...string) *redis.IntCmd
-	HGetAll(ctx context.Context, key string) *redis.StringStringMapCmd
-	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
-	HIncrByFloat(ctx context.Context, key, field string, inc float64) *redis.FloatCmd
-	HIncrBy(ctx context.Context, key, field string, inc int64) *redis.IntCmd
-	Exists(ctx context.Context, keys ...string) *redis.IntCmd
-	FlushAll(ctx context.Context) *redis.StatusCmd
-	LPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
-	TxPipeline() redis.Pipeliner
-	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
-	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
-	Do(ctx context.Context, args ...interface{}) *redis.Cmd
 }
 
 func NewClient(option *redis.Options) *redis.Client {
