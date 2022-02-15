@@ -26,15 +26,20 @@ import (
 * @create: 2019-11-01 14:06
 **/
 
-func NewModel(client redis.Cmdable) *Client {
+type Cmd interface {
+	redis.Cmdable
+	Do(ctx context.Context, args ...interface{}) *redis.Cmd
+}
+
+func NewModel(client Cmd) *Client {
 	return &Client{Handler: client}
 }
 
 type Client struct {
-	Handler redis.Cmdable
+	Handler Cmd
 }
 
-func (client *Client) Transaction(fn func(pipe redis.Cmdable) error) error {
+func (client *Client) Transaction(fn func(pipe Cmd) error) error {
 	var pipe = client.Handler.TxPipeline()
 	var err = fn(pipe)
 	if err != nil {
