@@ -26,21 +26,21 @@ import (
 * @create: 2019-11-01 14:06
 **/
 
-type Cmd interface {
+type Cmdable interface {
 	redis.Cmdable
 	Do(ctx context.Context, args ...interface{}) *redis.Cmd
 }
 
-func NewModel(client Cmd) *Client {
-	return &Client{Handler: client}
+func NewCmd(c Cmdable) *Cmd {
+	return &Cmd{c}
 }
 
-type Client struct {
-	Handler Cmd
+type Cmd struct {
+	Cmdable
 }
 
-func (client *Client) Transaction(fn func(pipe Cmd) error) error {
-	var pipe = client.Handler.TxPipeline()
+func (client *Cmd) Transaction(fn func(pipe Cmdable) error) error {
+	var pipe = client.TxPipeline()
 	var err = fn(pipe)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (res *ScanResult) Result() string {
 	return res.res
 }
 
-func (client *Client) Scan(key string, count int) chan *ScanResult {
+func (client *Cmd) Scan(key string, count int) chan *ScanResult {
 
 	var ch = make(chan *ScanResult, 1)
 
@@ -73,7 +73,7 @@ func (client *Client) Scan(key string, count int) chan *ScanResult {
 
 			var keys []string
 			var err error
-			keys, cursor, err = client.Handler.Scan(context.Background(), cursor, key, int64(count)).Result()
+			keys, cursor, err = client.Cmdable.Scan(context.Background(), cursor, key, int64(count)).Result()
 			if err != nil {
 				ch <- &ScanResult{err: err}
 				close(ch)

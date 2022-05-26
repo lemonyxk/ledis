@@ -12,6 +12,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/lemonyxk/ledis"
@@ -30,4 +31,7 @@ func main() {
 		panic(err)
 	}
 
+	var handler = ledis.NewCmd(client)
+
+	log.Println(handler.HGetAll(context.Background(), "ACCOUNT:100013643").String())
 }
