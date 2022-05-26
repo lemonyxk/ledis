@@ -62,7 +62,7 @@ func (res *ScanResult) Result() string {
 	return res.res
 }
 
-func (client *Cmd) Scan(key string, count int) chan *ScanResult {
+func (client *Cmd) ScanAll(key string, count int) chan *ScanResult {
 
 	var ch = make(chan *ScanResult, 1)
 
