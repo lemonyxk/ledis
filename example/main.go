@@ -14,7 +14,7 @@ import (
 	"context"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/lemoyxk/ledis"
+	"github.com/lemonyxk/ledis"
 )
 
 func main() {

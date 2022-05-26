@@ -1,8 +1,8 @@
-module github.com/lemoyxk/ledis
+module github.com/lemonyxk/ledis
 
 go 1.17
 
-require github.com/go-redis/redis/v8 v8.11.4
+require github.com/go-redis/redis/v8 v8.11.5
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
