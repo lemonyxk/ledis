@@ -11,10 +11,9 @@
 package main
 
 import (
-	"context"
 	"log"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v7"
 	"github.com/lemonyxk/ledis"
 )
 
@@ -23,15 +22,26 @@ func main() {
 	var client = ledis.NewFailover(&redis.FailoverOptions{
 		MasterName:    "master",
 		Password:      "1354243",
-		SentinelAddrs: []string{"192.168.0.100:16379"},
+		SentinelAddrs: []string{"192.168.0.100:16379", "192.168.0.100:16380", "192.168.0.100:16381"},
 	})
 
-	err := client.Ping(context.Background()).Err()
+	err := client.Ping().Err()
+	if err != nil {
+		panic(err)
+	}
+
+	var client1 = ledis.NewFailover(&redis.FailoverOptions{
+		MasterName:    "master",
+		Password:      "1354243",
+		SentinelAddrs: []string{"192.168.0.100:16379", "192.168.0.100:16380", "192.168.0.100:16381"},
+	})
+
+	err = client1.Ping().Err()
 	if err != nil {
 		panic(err)
 	}
 
 	var handler = ledis.NewCmd(client)
 
-	log.Println(handler.HGetAll(context.Background(), "ACCOUNT:100013643").String())
+	log.Println(handler.HGetAll("ACCOUNT:100013643").String())
 }

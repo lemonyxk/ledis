@@ -11,11 +11,10 @@
 package ledis
 
 import (
-	"context"
 	"strconv"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v7"
 )
 
 type Model struct {
@@ -37,25 +36,25 @@ func (p *Model) Key(id int) string {
 }
 
 func (p *Model) Get(id int) *redis.StringStringMapCmd {
-	return p.Handler.HGetAll(context.Background(), p.Key(id))
+	return p.Handler.HGetAll(p.Key(id))
 }
 
 func (p *Model) Delete(id int) *redis.IntCmd {
-	return p.Handler.Del(context.Background(), p.Key(id))
+	return p.Handler.Del(p.Key(id))
 }
 
 func (p *Model) Create(id int, value map[string]interface{}) *redis.BoolCmd {
-	return p.Handler.HMSet(context.Background(), p.Key(id), value)
+	return p.Handler.HMSet(p.Key(id), value)
 }
 
 func (p *Model) Update(id int, update map[string]interface{}) *redis.BoolCmd {
-	return p.Handler.HMSet(context.Background(), p.Key(id), update)
+	return p.Handler.HMSet(p.Key(id), update)
 }
 
 func (p *Model) Expire(id int, time time.Duration) *redis.BoolCmd {
-	return p.Handler.Expire(context.Background(), p.Key(id), time)
+	return p.Handler.Expire(p.Key(id), time)
 }
 
 func (p *Model) Exists(id int) *redis.IntCmd {
-	return p.Handler.Exists(context.Background(), p.Key(id))
+	return p.Handler.Exists(p.Key(id))
 }

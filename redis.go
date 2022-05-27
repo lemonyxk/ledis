@@ -11,9 +11,7 @@
 package ledis
 
 import (
-	"context"
-
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v7"
 )
 
 /**
@@ -28,7 +26,7 @@ import (
 
 type Cmdable interface {
 	redis.Cmdable
-	Do(ctx context.Context, args ...interface{}) *redis.Cmd
+	Do(args ...interface{}) *redis.Cmd
 }
 
 func NewCmd(c Cmdable) *Cmd {
@@ -45,7 +43,7 @@ func (client *Cmd) Transaction(fn func(pipe Cmdable) error) error {
 	if err != nil {
 		return err
 	}
-	_, err = pipe.Exec(context.Background())
+	_, err = pipe.Exec()
 	return err
 }
 
@@ -73,7 +71,7 @@ func (client *Cmd) ScanAll(key string, count int) chan *ScanResult {
 
 			var keys []string
 			var err error
-			keys, cursor, err = client.Cmdable.Scan(context.Background(), cursor, key, int64(count)).Result()
+			keys, cursor, err = client.Cmdable.Scan(cursor, key, int64(count)).Result()
 			if err != nil {
 				ch <- &ScanResult{err: err}
 				close(ch)
