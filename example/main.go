@@ -44,5 +44,7 @@ func main() {
 
 	var handler = ledis.NewCmd(client)
 
+	log.Println(handler.Do(context.Background(), "PING").Val())
+
 	log.Println(handler.HGetAll(context.Background(), "ACCOUNT:100013643").String())
 }

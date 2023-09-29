@@ -26,17 +26,33 @@ import (
 * @create: 2019-11-01 14:06
 **/
 
-type Cmdable interface {
-	redis.Cmdable
+type Universal interface {
+	AddHook(hook redis.Hook)
+	Watch(ctx context.Context, fn func(tx *redis.Tx) error, keys ...string) error
 	Do(ctx context.Context, args ...interface{}) *redis.Cmd
+	Process(ctx context.Context, cmd redis.Cmder) error
+	Subscribe(ctx context.Context, channels ...string) *redis.PubSub
+	PSubscribe(ctx context.Context, channels ...string) *redis.PubSub
+	SSubscribe(ctx context.Context, channels ...string) *redis.PubSub
+	Close() error
+	PoolStats() *redis.PoolStats
 }
 
-func NewCmd(c Cmdable) *Cmd {
+type Cmdable interface {
+	redis.Cmdable
+}
+
+type Client interface {
+	Cmdable
+	Universal
+}
+
+func NewCmd(c Client) *Cmd {
 	return &Cmd{c}
 }
 
 type Cmd struct {
-	Cmdable
+	Client
 }
 
 func (client *Cmd) Transaction(fn func(pipe Cmdable) error) error {
@@ -73,7 +89,7 @@ func (client *Cmd) ScanAll(key string, count int) chan *ScanResult {
 
 			var keys []string
 			var err error
-			keys, cursor, err = client.Cmdable.Scan(context.Background(), cursor, key, int64(count)).Result()
+			keys, cursor, err = client.Client.Scan(context.Background(), cursor, key, int64(count)).Result()
 			if err != nil {
 				ch <- &ScanResult{err: err}
 				close(ch)
